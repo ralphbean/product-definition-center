@@ -5,6 +5,7 @@
 # http://opensource.org/licenses/MIT
 #
 import json
+import sys
 
 from pdc_client import get_paged
 from pdc_client.plugin_helpers import (PDCClientPlugin,
@@ -29,7 +30,7 @@ class GlobalComponentPlugin(PDCClientPlugin):
         info_parser.set_defaults(func=self.global_component_info)
 
         update_parser = self.add_action('update', help='update an existing global component')
-        update_parser.add_argument('global_component_id', metavar='GLOBAL_COMPONENT_ID')
+        update_parser.add_argument('global_component_name', metavar='GLOBAL_COMPONENT_NAME')
         self.add_global_component_arguments(update_parser)
         update_parser.set_defaults(func=self.global_component_update)
 
@@ -63,6 +64,13 @@ class GlobalComponentPlugin(PDCClientPlugin):
                 print '{:<10} {}'.format(
                       global_component['id'],
                       global_component['name'])
+
+    def _get_component_id(self, args):
+        global_component = self.client['global-components']._(name=args)
+        if global_component['count']:
+            return str(global_component['results'][0]['id'])
+        else:
+            return None
 
     def global_component_info(self, args, global_component_id=None):
         global_component_id = global_component_id or args.global_component_id
@@ -104,13 +112,17 @@ class GlobalComponentPlugin(PDCClientPlugin):
 
     def global_component_update(self, args):
         data = extract_arguments(args)
+        global_component_id = self._get_component_id(args.global_component_name)
+        if not global_component_id:
+            sys.stderr.write("This global component doesn't exist.\n")
+            sys.exit(1)
         if data:
             self.logger.debug('Updating global component %s with data %r',
-                              args.global_component_id, data)
-            self.client['global-components'][args.global_component_id]._ += data
+                              global_component_id, data)
+            self.client['global-components'][global_component_id]._ += data
         else:
             self.logger.debug('Empty data, skipping request')
-        self.global_component_info(args)
+        self.global_component_info(args, global_component_id)
 
 
 class ReleaseComponentPlugin(PDCClientPlugin):
