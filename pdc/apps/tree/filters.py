@@ -30,8 +30,8 @@ class UnreleasedVariantFilter(django_filters.FilterSet):
     variant_name        = django_filters.CharFilter(name='variant_name', lookup_type='iexact')
     variant_type        = django_filters.CharFilter(name='variant_type', lookup_type='iexact')
     variant_version     = django_filters.CharFilter(name='variant_version', lookup_type='iexact')
-    variant_release     = django_filters.CharFilter(name='variant_release', lookup_type='iexact')
 
     class Meta:
         model = UnreleasedVariant
-        fields = ('variant_id', 'variant_uid', 'variant_name', 'variant_type', 'variant_version', 'variant_release')
+        fields = ('variant_id', 'variant_uid', 'variant_name', 'variant_type',
+                  'variant_version')

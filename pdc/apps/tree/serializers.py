@@ -18,7 +18,7 @@ class UnreleasedVariantField(serializers.Field):
 
     def to_internal_value(self, data):
         try:
-            variant = UnreleasedVariant.objects.get(variant_uid=data['variant_uid'], variant_version=data['variant_version'], variant_release=data['variant_release'])
+            variant = UnreleasedVariant.objects.get(variant_uid=data['variant_uid'], variant_version=data['variant_version'])
         except UnreleasedVariant.DoesNotExist:
             raise serializers.ValidationError("UnreleasedVariant %s does not exist.")
         return variant
@@ -62,13 +62,12 @@ class UnreleasedVariantSerializer(StrictSerializerMixin,
     variant_name        = serializers.CharField(max_length=300)
     variant_type        = serializers.CharField(max_length=100)
     variant_version     = serializers.CharField(max_length=100)
-    variant_release     = serializers.CharField(max_length=100)
     koji_tag            = serializers.CharField(max_length=300)
 
     class Meta:
         model = UnreleasedVariant
         fields = (
-            'variant_id', 'variant_uid', 'variant_name', 'variant_type', 'variant_version', 'variant_release', 'koji_tag'
+            'variant_id', 'variant_uid', 'variant_name', 'variant_type', 'variant_version', 'koji_tag'
         )
 
 
