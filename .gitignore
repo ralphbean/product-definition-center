@@ -6,3 +6,4 @@ settings_local.py
 .idea
 .tox
 pdc.egg-info/
+.idea
