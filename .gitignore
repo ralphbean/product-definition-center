@@ -5,3 +5,4 @@ settings_local.py
 .tito/copr_user.conf
 .tox
 pdc.egg-info/
+.idea
