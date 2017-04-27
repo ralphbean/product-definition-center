@@ -6,7 +6,8 @@
       "name": "2.7",
       "global_component": 1,
       "type": 1,
-      "active": true
+      "active": true,
+      "critical_path": false
    }
 },
 {
@@ -16,7 +17,8 @@
       "name": "2.6",
       "global_component": 1,
       "type": 1,
-      "active": false
+      "active": false,
+      "critical_path": false
    }
 }
 ]
