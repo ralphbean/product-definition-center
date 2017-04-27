@@ -16,6 +16,7 @@ class ComponentBranch(models.Model):
     # TODO: Should we include a the dist-git URL?
     # dist_git_url = models.CharField(max_length=500, blank=True)
     active = models.BooleanField(default=True)
+    critical_path = models.BooleanField(default=False)
 
     class Meta:
         unique_together = [
@@ -30,8 +31,11 @@ class ComponentBranch(models.Model):
         return {
             'global_component_name': self.global_component.name,
             'name': self.name,
+            'type_name': self.type.name,
+            'slas': [{'name': sla_to_branch.sla.name, 'eol': sla_to_branch.eol}
+                     for sla_to_branch in self.slas.all()],
             'active': self.active,
-            'slas': [{'name': sla_to_branch.sla.name, 'eol': sla_to_branch.eol} for sla_to_branch in self.slas.all()],
+            'critical_path': self.critical_path
         }
 
 

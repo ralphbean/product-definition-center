@@ -101,7 +101,8 @@ class ComponentBranchAPITestCase(APITestCase):
             'name': '3.6',
             'global_component': 'python',
             'type': 'rpm',
-            'active': False
+            'active': False,
+            'critical_path': True
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -110,6 +111,7 @@ class ComponentBranchAPITestCase(APITestCase):
             'slas': [],
             'global_component': 'python',
             'active': False,
+            'critical_path': True,
             'type': 'rpm',
             'id': 3
         }
@@ -126,6 +128,18 @@ class ComponentBranchAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         branch = ComponentBranch.objects.filter(id=1).first()
         self.assertEqual(branch.active, True)
+
+    def test_create_branch_critical_path_default(self):
+        url = reverse('componentbranch-list')
+        data = {
+            'name': '3.6',
+            'global_component': 'python',
+            'type': 'rpm'
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        branch = ComponentBranch.objects.filter(id=1).first()
+        self.assertEqual(branch.critical_path, False)
 
     def test_create_branch_bad_name(self):
         url = reverse('componentbranch-list')
@@ -151,6 +165,7 @@ class ComponentBranchAPITestCase(APITestCase):
                          'python')
         self.assertEqual(response.data['results'][0]['type'], 'rpm')
         self.assertFalse(response.data['results'][0]['active'])
+        self.assertFalse(response.data['results'][0]['critical_path'])
 
     def test_patch_branch(self):
         gc2 = GlobalComponent(name='pythonx')
@@ -167,6 +182,7 @@ class ComponentBranchAPITestCase(APITestCase):
                          'pythonx')
         self.assertEqual(response.data['type'], 'rpm')
         self.assertFalse(response.data['active'])
+        self.assertFalse(response.data['critical_path'])
 
     def test_patch_branch_change_name_error(self):
         url = reverse('componentbranch-detail', args=[1])
@@ -187,7 +203,8 @@ class ComponentBranchAPITestCase(APITestCase):
             'name': '2.6',
             'global_component': 'pythonx',
             'type': 'rpm',
-            'active': False
+            'active': False,
+            'critical_path': False
         }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -197,6 +214,7 @@ class ComponentBranchAPITestCase(APITestCase):
                          'pythonx')
         self.assertEqual(response.data['type'], 'rpm')
         self.assertFalse(response.data['active'])
+        self.assertFalse(response.data['critical_path'])
 
     def test_put_branch_change_name_error(self):
         url = reverse('componentbranch-detail', args=[1])
@@ -204,7 +222,8 @@ class ComponentBranchAPITestCase(APITestCase):
             'name': '3.6',
             'global_component': 'python',
             'type': 'rpm',
-            'active': False
+            'active': False,
+            'critical_path': False
         }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -233,7 +252,8 @@ class SLAToBranchAPITestCase(APITestCase):
                 'name': '2.7',
                 'global_component': 'python',
                 'type': 'rpm',
-                'active': True
+                'active': True,
+                'critical_path': False
             }
         }
         response = self.client.post(url, data, format='json')
@@ -246,6 +266,7 @@ class SLAToBranchAPITestCase(APITestCase):
                 'global_component': 'python',
                 'type': 'rpm',
                 'active': True,
+                'critical_path': False,
                 'id': 1
             },
             'id': 2
@@ -271,6 +292,26 @@ class SLAToBranchAPITestCase(APITestCase):
         error_msg = {'branch.active': [error]}
         self.assertEqual(response.data, error_msg)
 
+    def test_create_sla_to_branch_branch_exists_critical_path_wrong(self):
+        url = reverse('slatocomponentbranch-list')
+        data = {
+            'sla': 'bug_fixes',
+            'eol': '2020-01-01',
+            'branch': {
+                'name': '2.7',
+                'global_component': 'python',
+                'type': 'rpm',
+                'active': True,
+                'critical_path': True
+            }
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = ('The found branch\'s critical_path field did not match the '
+                 'supplied value')
+        error_msg = {'branch.critical_path': [error]}
+        self.assertEqual(response.data, error_msg)
+
     def test_create_sla_to_branch(self):
         url = reverse('slatocomponentbranch-list')
         data = {
@@ -281,7 +322,7 @@ class SLAToBranchAPITestCase(APITestCase):
                 'global_component': 'python',
                 'type': 'rpm',
                 'active': True,
-                'id': 1
+                'critical_path': False
             }
         }
         response = self.client.post(url, data, format='json')
@@ -294,6 +335,7 @@ class SLAToBranchAPITestCase(APITestCase):
                 'global_component': 'python',
                 'type': 'rpm',
                 'active': True,
+                'critical_path': False,
                 'id': 1
             },
             'id': 2
@@ -309,7 +351,8 @@ class SLAToBranchAPITestCase(APITestCase):
                 'name': '3.6',
                 'global_component': 'python',
                 'type': 'rpm',
-                'active': False
+                'active': False,
+                'critical_path': True
             }
         }
         response = self.client.post(url, data, format='json')
@@ -322,6 +365,7 @@ class SLAToBranchAPITestCase(APITestCase):
                 'global_component': 'python',
                 'type': 'rpm',
                 'active': False,
+                'critical_path': True,
                 'id': 3
             },
             'id': 2
@@ -337,6 +381,7 @@ class SLAToBranchAPITestCase(APITestCase):
                 'name': '3.6',
                 'global_component': 'python',
                 'type': 'rpm',
+                'critical_path': False,
             }
         }
         response = self.client.post(url, data, format='json')
@@ -349,6 +394,36 @@ class SLAToBranchAPITestCase(APITestCase):
                 'global_component': 'python',
                 'type': 'rpm',
                 'active': True,
+                'critical_path': False,
+                'id': 3
+            },
+            'id': 2
+        }
+        self.assertEqual(response.data, expected_rv)
+
+    def test_create_sla_to_branch_branch_critical_path_default(self):
+        url = reverse('slatocomponentbranch-list')
+        data = {
+            'sla': 'security_fixes',
+            'eol': '2020-01-01',
+            'branch': {
+                'name': '3.6',
+                'global_component': 'python',
+                'type': 'rpm',
+                'active': True
+            }
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        expected_rv = {
+            'sla': 'security_fixes',
+            'eol': '2020-01-01',
+            'branch': {
+                'name': '3.6',
+                'global_component': 'python',
+                'type': 'rpm',
+                'active': True,
+                'critical_path': False,
                 'id': 3
             },
             'id': 2
@@ -365,6 +440,7 @@ class SLAToBranchAPITestCase(APITestCase):
                 'global_component': 'python',
                 'type': 'rpm',
                 'active': True,
+                'critical_path': False
             }
         }
         response = self.client.post(url, data, format='json')
@@ -380,6 +456,7 @@ class SLAToBranchAPITestCase(APITestCase):
             'global_component': 'python',
             'type': 'rpm',
             'active': True,
+            'critical_path': False,
             'id': 1
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -400,6 +477,7 @@ class SLAToBranchAPITestCase(APITestCase):
             'global_component': 'python',
             'type': 'rpm',
             'active': True,
+            'critical_path': False,
             'id': 1
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -415,7 +493,8 @@ class SLAToBranchAPITestCase(APITestCase):
                 'name': '3.6',
                 'global_component': 'python',
                 'type': 'rpm',
-                'active': True
+                'active': True,
+                'critical_path': False,
             }
         }
         response = self.client.patch(url, data, format='json')
@@ -429,7 +508,8 @@ class SLAToBranchAPITestCase(APITestCase):
             'name': '2.7',
             'global_component': 'python',
             'type': 'rpm',
-            'active': True
+            'active': True,
+            'critical_path': False
         }
         data = {
             'sla': 'security_fixes',
@@ -444,13 +524,36 @@ class SLAToBranchAPITestCase(APITestCase):
         self.assertEqual(response.data['eol'], '2020-03-01')
         self.assertEqual(response.data['branch'], branch)
 
+    def test_put_sla_to_branch_no_active_no_critical_path(self):
+        url = reverse('slatocomponentbranch-detail', args=[1])
+        branch = {
+            'name': '2.7',
+            'global_component': 'python',
+            'type': 'rpm'
+        }
+        data = {
+            'sla': 'security_fixes',
+            'eol': '2020-03-01',
+            'branch': branch,
+        }
+        response = self.client.put(url, data, format='json')
+        branch['id'] = 1
+        branch['active'] = True
+        branch['critical_path'] = False
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], 1)
+        self.assertEqual(response.data['sla'], 'security_fixes')
+        self.assertEqual(response.data['eol'], '2020-03-01')
+        self.assertEqual(response.data['branch'], branch)
+
     def test_put_sla_to_branch_change_branch_error(self):
         url = reverse('slatocomponentbranch-detail', args=[1])
         branch = {
             'name': '3.5',
             'global_component': 'python',
             'type': 'rpm',
-            'active': True
+            'active': True,
+            'critical_path': False
         }
         data = {
             'sla': 'security_fixes',

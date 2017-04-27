@@ -111,12 +111,14 @@ class ComponentBranchSerializer(StrictSerializerMixin,
     type = ChoiceSlugField(
         slug_field='name', queryset=ReleaseComponentType.objects.all())
     active = serializers.BooleanField(default=True)
+    critical_path = serializers.BooleanField(default=False)
     slas = SLAToComponentBranchSerializerForComponentBranch(
         many=True, read_only=True)
 
     class Meta:
         model = ComponentBranch
-        fields = ('id', 'global_component', 'name', 'slas', 'type', 'active')
+        fields = ('id', 'global_component', 'name', 'slas', 'type', 'active',
+                  'critical_path')
 
     def update(self, instance, validated_data):
         """
@@ -144,6 +146,7 @@ class ComponentBranchSerializerWithoutSLA(serializers.Serializer):
     type = ChoiceSlugField(
         slug_field='name', queryset=ReleaseComponentType.objects.all())
     active = serializers.BooleanField(required=False)
+    critical_path = serializers.BooleanField(required=False)
 
 
 class SLAToComponentBranchSerializer(StrictSerializerMixin,
@@ -182,6 +185,7 @@ class SLAToComponentBranchSerializer(StrictSerializerMixin,
 
         branch_name = validated_data['branch']['name']
         branch_active = validated_data['branch'].get('active')
+        branch_critical_path = validated_data['branch'].get('critical_path')
         branch = ComponentBranch.objects.filter(
             name=branch_name,
             type=component_type.id,
@@ -194,12 +198,28 @@ class SLAToComponentBranchSerializer(StrictSerializerMixin,
                              'the supplied value')
                 raise serializers.ValidationError(
                     {'branch.active': [error_msg]})
+            # The critical_path field is optional, but if it was supplied and it
+            # doesn't match the found branch's critical_path field, raise an
+            # error
+            elif branch_critical_path is not None and \
+                    branch.critical_path != branch_critical_path:
+                error_msg = ('The found branch\'s critical_path field did not '
+                             'match the supplied value')
+                raise serializers.ValidationError(
+                    {'branch.critical_path': [error_msg]})
         else:
+            # Set the defaults for these optional values when creating
+            if branch_active is None:
+                branch_active = True
+            if branch_critical_path is None:
+                branch_critical_path = False
+
             branch = ComponentBranch(
                 name=branch_name,
                 type=component_type,
                 global_component=branch_global_component,
-                active=branch_active if branch_active is not None else True
+                active=branch_active,
+                critical_path=branch_critical_path,
             )
 
         sla_name = validated_data['sla']
@@ -232,12 +252,16 @@ class SLAToComponentBranchSerializer(StrictSerializerMixin,
         branch_name = branch.get('name')
         component_type = branch.get('type')
         global_component = branch.get('global_component')
-        active = branch.get('active', True)
+        active = branch.get('active', None)
+        critical_path = branch.get('critical_path', None)
         if branch:
             if instance.branch.name != branch_name or \
                     instance.branch.type != component_type or \
                     instance.branch.global_component != global_component or \
-                    instance.branch.active is not active:
+                    (active is not None and
+                     instance.branch.active is not active) or \
+                    (critical_path is not None and
+                     instance.branch.critical_path is not critical_path):
                 raise serializers.ValidationError({
                     'branch': ['The branch cannot be modified using this API']})
 

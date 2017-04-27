@@ -17,6 +17,7 @@ class ComponentBranchFilter(django_filters.FilterSet):
         name='global_component', lookup_type='iexact')
     type__name = django_filters.CharFilter(name='type', lookup_type='iexact')
     active = CaseInsensitiveBooleanFilter()
+    critical_path = CaseInsensitiveBooleanFilter()
 
     class Meta:
         model = ComponentBranch
