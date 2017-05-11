@@ -167,6 +167,20 @@ class ComponentBranchAPITestCase(APITestCase):
         self.assertFalse(response.data['results'][0]['active'])
         self.assertFalse(response.data['results'][0]['critical_path'])
 
+    def test_get_branch_filter(self):
+        url = reverse('componentbranch-list')
+        url = '{0}?global_component=python&type=rpm&name=2.7'.format(url)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], 1)
+        self.assertEqual(response.data['results'][0]['name'], '2.7')
+        self.assertEqual(response.data['results'][0]['global_component'],
+                         'python')
+        self.assertEqual(response.data['results'][0]['type'], 'rpm')
+        self.assertTrue(response.data['results'][0]['active'])
+        self.assertFalse(response.data['results'][0]['critical_path'])
+
     def test_patch_branch(self):
         gc2 = GlobalComponent(name='pythonx')
         gc2.save()
@@ -450,6 +464,25 @@ class SLAToBranchAPITestCase(APITestCase):
 
     def test_get_sla_to_branch(self):
         url = reverse('slatocomponentbranch-list')
+        response = self.client.get(url)
+        expected_branch = {
+            'name': '2.7',
+            'global_component': 'python',
+            'type': 'rpm',
+            'active': True,
+            'critical_path': False,
+            'id': 1
+        }
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'], 1)
+        self.assertEqual(response.data['results'][0]['sla'], 'security_fixes')
+        self.assertEqual(response.data['results'][0]['eol'], '2020-01-01')
+        self.assertEqual(response.data['results'][0]['branch'], expected_branch)
+
+    def test_get_sla_to_branch_filtering(self):
+        url = reverse('slatocomponentbranch-list')
+        url = '{0}?branch=2.7&global_component=python&branch_type=rpm'.format(url)
         response = self.client.get(url)
         expected_branch = {
             'name': '2.7',
