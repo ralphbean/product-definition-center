@@ -9,7 +9,8 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from pdc.apps.component.models import GlobalComponent
-from pdc.apps.componentbranch.models import ComponentBranch
+from pdc.apps.componentbranch.models import (
+    ComponentBranch, SLAToComponentBranch, SLA)
 
 
 class SLAAPITestCase(APITestCase):
@@ -246,6 +247,16 @@ class ComponentBranchAPITestCase(APITestCase):
         self.assertEqual(response.data, error_msg)
 
     def test_delete_branch(self):
+        url = reverse('componentbranch-detail', args=[1])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_branch_with_slas(self):
+        branch = ComponentBranch.objects.get(id=1)
+        sla = SLA.objects.get(name='bug_fixes')
+        sla_entry = SLAToComponentBranch(
+            sla=sla, branch=branch, eol='2020-01-01')
+        sla_entry.save()
         url = reverse('componentbranch-detail', args=[1])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -601,5 +612,15 @@ class SLAToBranchAPITestCase(APITestCase):
 
     def test_delete_sla_to_branch(self):
         url = reverse('slatocomponentbranch-detail', args=[1])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_sla_with_sla_to_branch_relationships(self):
+        branch = ComponentBranch.objects.get(id=1)
+        sla = SLA.objects.get(name='bug_fixes')
+        sla_entry = SLAToComponentBranch(
+            sla=sla, branch=branch, eol='2020-01-01')
+        sla_entry.save()
+        url = reverse('sla-detail', args=[2])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

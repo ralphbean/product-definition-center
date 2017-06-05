@@ -32,7 +32,8 @@ class ComponentBranch(models.Model):
             'global_component_name': self.global_component.name,
             'name': self.name,
             'type_name': self.type.name,
-            'slas': [{'name': sla_to_branch.sla.name, 'eol': sla_to_branch.eol}
+            'slas': [{'name': sla_to_branch.sla.name,
+                      'eol': sla_to_branch.eol.strftime('%Y-%m-%d')}
                      for sla_to_branch in self.slas.all()],
             'active': self.active,
             'critical_path': self.critical_path
@@ -54,8 +55,9 @@ class SLA(models.Model):
 
 
 class SLAToComponentBranch(models.Model):
-    sla = models.ForeignKey(SLA)
-    branch = models.ForeignKey(ComponentBranch, related_name='slas')
+    sla = models.ForeignKey(SLA, on_delete=models.CASCADE)
+    branch = models.ForeignKey(ComponentBranch, related_name='slas',
+                               on_delete=models.CASCADE)
     eol = models.DateField()
 
     class Meta:
