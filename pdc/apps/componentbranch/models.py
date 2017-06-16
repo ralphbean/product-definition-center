@@ -15,7 +15,6 @@ class ComponentBranch(models.Model):
     type = models.ForeignKey(ReleaseComponentType)
     # TODO: Should we include a the dist-git URL?
     # dist_git_url = models.CharField(max_length=500, blank=True)
-    active = models.BooleanField(default=True)
     critical_path = models.BooleanField(default=False)
 
     class Meta:
@@ -35,7 +34,6 @@ class ComponentBranch(models.Model):
             'slas': [{'name': sla_to_branch.sla.name,
                       'eol': sla_to_branch.eol.strftime('%Y-%m-%d')}
                      for sla_to_branch in self.slas.all()],
-            'active': self.active,
             'critical_path': self.critical_path
         }
 

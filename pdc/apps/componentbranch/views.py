@@ -78,7 +78,8 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                         "name": string,
                         "slas": list,
                         "type": string,
-                        "active": boolean
+                        "active": boolean,
+                        "critical_path": boolean
                     }
                     ...
                 ]
@@ -101,7 +102,8 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                 "name": string,
                 "slas": list,
                 "type": string,
-                "active": boolean
+                "active": boolean,
+                "critical_path": boolean
             }
         """
         return super(ComponentBranchViewSet, self).retrieve(request, *args, **kwargs)
@@ -117,7 +119,7 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
         * **name**: the name of the branch
         * **global_component**: the name of the global component this branch belongs to
         * **type**: the name of the branch's type (ReleaseComponentType)
-        * **active**: a boolean value representing if the branch is active or not. This defaults to true.
+        * **critical_path**: a boolean determining if the branch is "critical path". This defaults to false.
 
         __Data__:
 
@@ -125,7 +127,7 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                 "global_component": string,
                 "name": string,
                 "type": string,
-                "active": boolean
+                "critical_path": boolean
             }
 
         __Response__:
@@ -145,7 +147,7 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
         * **name**: the name of the branch. **This value is not modifiable**.
         * **global_component**: the name of the global component this branch belongs to
         * **type**: the name of the branch's type (ReleaseComponentType)
-        * **active**: a boolean value representing if the branch is active or not. This defaults to true.
+        * **critical_path**: a boolean determining if the branch is "critical path". This defaults to false.
 
         __Data__:
 
@@ -153,7 +155,6 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                 "global_component": string,
                 "name": string,
                 "type": string,
-                "active": boolean
             }
 
         __URL__: $LINK:componentbranch-detail:id$
@@ -166,7 +167,8 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                 "name": string,
                 "slas": list,
                 "type": string,
-                "active": boolean
+                "active": boolean,
+                "critical_path": boolean
             }
 
         __Example__:
@@ -174,7 +176,7 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
         PUT:
 
             curl -X PUT -H "Content-Type: application/json" $URL:componentbranch-detail:1$ \\
-                    -d '{"name": "2.7", "global_component": "python", "type": "rpm", "active": true}'
+                    -d '{"name": "2.7", "global_component": "python", "type": "rpm"}'
             # Output
             {
                 "id": 1,
@@ -182,12 +184,13 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                 "name": "2.7",
                 "slas": [],
                 "type": "rpm",
-                "active": true
+                "active": true,
+                "critical_path": false
             }
 
         PATCH:
 
-            curl -X PATCH -H "Content-Type: application/json" $URL:componentbranch-detail:1$ -d '{"active": false}'
+            curl -X PATCH -H "Content-Type: application/json" $URL:componentbranch-detail:1$ -d '{"type": "container"}'
             # Output
             {
                 "id": 1,
@@ -195,7 +198,8 @@ class ComponentBranchViewSet(viewsets.PDCModelViewSet):
                 "name": "2.7",
                 "slas": [],
                 "type": "rpm",
-                "active": false
+                "active": false,
+                "critical_path": false
             }
         """
         return super(ComponentBranchViewSet, self).update(request, *args, **kwargs)
@@ -455,7 +459,8 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                             "name": string,
                             "global_component": string,
                             "type": string,
-                            "active": boolean
+                            "active": boolean,
+                            "critical_path": boolean
                         },
                         "eol": date
                     },
@@ -482,7 +487,8 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                     "name": string,
                     "global_component": string,
                     "type": string,
-                    "active": boolean
+                    "active": boolean,
+                    "critical_path": boolean
                 },
                 "eol": date
             }
@@ -503,7 +509,7 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
         * **branch.name**: the name of the branch
         * **branch.global_component**: the name of the global component this branch belongs to
         * **branch.type**: the name of the branch's type (ReleaseComponentType)
-        * **branch.active**: a boolean value representing if the branch is active or not. This defaults to true during creation.
+        * **branch.critical_path**: a boolean determining if the branch is "critical path". This defaults to false.
 
         __Data__:
 
@@ -514,7 +520,7 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                     "name": string,
                     "global_component": string,
                     "type": string,
-                    "active": boolean
+                    "critical_path": boolean
                 }
             }
 
@@ -538,7 +544,7 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
         * **branch.name**: the name of the branch
         * **branch.global_component**: the name of the global component this branch belongs to
         * **branch.type**: the name of the branch's type (ReleaseComponentType)
-        * **branch.active**: an optional boolean value representing if the branch is active or not
+        * **branch.critical_path**: an optional boolean determining if the branch is "critical path".
 
         __Data__:
 
@@ -549,7 +555,7 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                     "name": string,
                     "global_component": string,
                     "type": string,
-                    "active": boolean
+                    "critical_path": boolean
                 }
             }
 
@@ -564,7 +570,8 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                     "name": string,
                     "global_component": string,
                     "type": string,
-                    "active": boolean
+                    "active": boolean,
+                    "critical_path": boolean
                 }
             }
 
@@ -583,7 +590,8 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                     "name": "2.7",
                     "global_component": "python",
                     "type": "rpm",
-                    "active": true
+                    "active": true,
+                    "critical_path": false
                 },
                 "eol": "2022-01-01"
             }
@@ -600,7 +608,8 @@ class SLAToComponentBranchViewSet(viewsets.PDCModelViewSet):
                     "name": "2.7",
                     "global_component": "python",
                     "type": "rpm",
-                    "active": true
+                    "active": true,
+                    "critical_path": false
                 },
                 "eol": "2022-01-31"
             }
