@@ -7,6 +7,7 @@
 from rest_framework import serializers
 from django.conf import settings as django_settings
 import re
+from datetime import datetime
 import six
 
 from pdc.apps.common.fields import ChoiceSlugField
@@ -15,6 +16,24 @@ from pdc.apps.componentbranch.models import (
     ComponentBranch, SLA, SLAToComponentBranch)
 from pdc.apps.common.serializers import (
     DynamicFieldsSerializerMixin, StrictSerializerMixin)
+
+
+def is_branch_active(branch):
+    """
+    Checks to see if the branch is active by seeing if there are valid SLAs
+    tied to the branch
+    :param branch: a ComponentBranch object
+    :return: a boolean
+    """
+    slas = branch.slas.all()
+    today = datetime.utcnow().date()
+    for sla in slas:
+        if sla.eol >= today:
+            # If the branch has at least one SLA that hasn't gone EOL, it is
+            # still active
+            return True
+
+    return False
 
 
 class BranchNameField(serializers.Field):
@@ -110,10 +129,19 @@ class ComponentBranchSerializer(StrictSerializerMixin,
         slug_field='name', queryset=GlobalComponent.objects.all())
     type = ChoiceSlugField(
         slug_field='name', queryset=ReleaseComponentType.objects.all())
-    active = serializers.BooleanField(default=True)
     critical_path = serializers.BooleanField(default=False)
     slas = SLAToComponentBranchSerializerForComponentBranch(
         many=True, read_only=True)
+    active = serializers.SerializerMethodField('is_active')
+
+    def is_active(self, branch):
+        """
+        Calls the is_branch_active function to determine if the branch is still
+        active
+        :param branch: a ComponentBranch object
+        :return: a boolean
+        """
+        return is_branch_active(branch)
 
     class Meta:
         model = ComponentBranch
@@ -145,8 +173,17 @@ class ComponentBranchSerializerWithoutSLA(serializers.Serializer):
         slug_field='name', queryset=GlobalComponent.objects.all())
     type = ChoiceSlugField(
         slug_field='name', queryset=ReleaseComponentType.objects.all())
-    active = serializers.BooleanField(required=False)
     critical_path = serializers.BooleanField(required=False)
+    active = serializers.SerializerMethodField('is_active')
+
+    def is_active(self, branch):
+        """
+        Calls the is_branch_active function to determine if the branch is still
+        active
+        :param branch: a ComponentBranch object
+        :return: a boolean
+        """
+        return is_branch_active(branch)
 
 
 class SLAToComponentBranchSerializer(StrictSerializerMixin,
@@ -184,33 +221,23 @@ class SLAToComponentBranchSerializer(StrictSerializerMixin,
                 {'branch.global_component': [error_msg]})
 
         branch_name = validated_data['branch']['name']
-        branch_active = validated_data['branch'].get('active')
         branch_critical_path = validated_data['branch'].get('critical_path')
         branch = ComponentBranch.objects.filter(
             name=branch_name,
             type=component_type.id,
             global_component=branch_global_component.id).first()
         if branch:
-            # The active field is optional, but if it was supplied and it
-            # doesn't match the found branch's active field, raise an error
-            if branch_active is not None and branch.active != branch_active:
-                error_msg = ('The found branch\'s active field did not match '
-                             'the supplied value')
-                raise serializers.ValidationError(
-                    {'branch.active': [error_msg]})
             # The critical_path field is optional, but if it was supplied and it
             # doesn't match the found branch's critical_path field, raise an
             # error
-            elif branch_critical_path is not None and \
+            if branch_critical_path is not None and \
                     branch.critical_path != branch_critical_path:
                 error_msg = ('The found branch\'s critical_path field did not '
                              'match the supplied value')
                 raise serializers.ValidationError(
                     {'branch.critical_path': [error_msg]})
         else:
-            # Set the defaults for these optional values when creating
-            if branch_active is None:
-                branch_active = True
+            # Set the default for this optional value when creating
             if branch_critical_path is None:
                 branch_critical_path = False
 
@@ -218,7 +245,6 @@ class SLAToComponentBranchSerializer(StrictSerializerMixin,
                 name=branch_name,
                 type=component_type,
                 global_component=branch_global_component,
-                active=branch_active,
                 critical_path=branch_critical_path,
             )
 
@@ -252,16 +278,13 @@ class SLAToComponentBranchSerializer(StrictSerializerMixin,
         branch_name = branch.get('name')
         component_type = branch.get('type')
         global_component = branch.get('global_component')
-        active = branch.get('active', None)
         critical_path = branch.get('critical_path', None)
         if branch:
-            if instance.branch.name != branch_name or \
-                    instance.branch.type != component_type or \
-                    instance.branch.global_component != global_component or \
-                    (active is not None and
-                     instance.branch.active is not active) or \
-                    (critical_path is not None and
-                     instance.branch.critical_path is not critical_path):
+            if instance.branch.name != branch_name \
+                    or instance.branch.type != component_type \
+                    or instance.branch.global_component != global_component \
+                    or (critical_path is not None and
+                        instance.branch.critical_path is not critical_path):
                 raise serializers.ValidationError({
                     'branch': ['The branch cannot be modified using this API']})
 
