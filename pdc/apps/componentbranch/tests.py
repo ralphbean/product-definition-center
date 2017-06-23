@@ -245,6 +245,32 @@ class ComponentBranchAPITestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_bulk_patch_branch(self):
+        # First, ensure it is False out of the gate.
+        get_url = reverse('componentbranch-detail', args=[1])
+        response = self.client.get(get_url, format='json')
+        self.assertEqual(response.data['critical_path'], False)
+
+        # Set it to true!
+        data = {1: dict(critical_path=True)}
+        patch_url = reverse('componentbranch-list')
+        response = self.client.patch(patch_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Get it again and check that it flipped for us.
+        response = self.client.get(get_url, format='json')
+        self.assertEqual(response.data['critical_path'], True)
+
+        # Now flip it back to false.
+        data = {1: dict(critical_path=False)}
+        patch_url = reverse('componentbranch-list')
+        response = self.client.patch(patch_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Get it one more time to be sure we can set it both ways.
+        response = self.client.get(get_url, format='json')
+        self.assertEqual(response.data['critical_path'], False)
+
 
 class SLAToBranchAPITestCase(APITestCase):
     fixtures = ['pdc/apps/componentbranch/fixtures/tests/global_component.json',
