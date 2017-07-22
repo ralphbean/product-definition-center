@@ -38,16 +38,16 @@ def value_is_not_empty(func):
     return _decorator
 
 
-class MultiValueFilter(django_filters.MethodFilter):
+class MultiValueFilter(django_filters.CharFilter):
     """
     Filter that allows multiple terms to be present and treats them as
     alternatives, i.e. it performs OR search.
     """
     def __init__(self, name=None, distinct=False):
-        super(MultiValueFilter, self).__init__(action='filter', widget=SelectMultiple, name=name, distinct=distinct)
+        super(MultiValueFilter, self).__init__(method='filter', widget=SelectMultiple, name=name, distinct=distinct)
 
     @value_is_not_empty
-    def filter(self, qs, value):
+    def filter(self, qs, name, value):
         qs = qs.filter(**{self.name + '__in': value})
         if self.distinct:
             qs = qs.distinct()
