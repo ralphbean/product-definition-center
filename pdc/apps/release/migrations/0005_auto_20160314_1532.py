@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='baseproduct',
             name='release_type',
-            field=models.ForeignKey(default=1, to='release.ReleaseType'),
+            field=models.ForeignKey(default=1, to='release.ReleaseType', on_delete=models.CASCADE),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(

@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='releasegroup',
             name='type',
-            field=models.ForeignKey(to='release.ReleaseGroupType'),
+            field=models.ForeignKey(to='release.ReleaseGroupType', on_delete=models.CASCADE),
         ),
     ]

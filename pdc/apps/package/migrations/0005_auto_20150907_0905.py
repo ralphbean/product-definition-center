@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=200)),
                 ('version', models.CharField(max_length=200, null=True, blank=True)),
                 ('comparison', models.CharField(max_length=50, null=True, blank=True)),
-                ('rpm', models.ForeignKey(to='package.RPM')),
+                ('rpm', models.ForeignKey(to='package.RPM', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

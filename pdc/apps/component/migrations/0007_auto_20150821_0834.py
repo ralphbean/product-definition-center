@@ -30,11 +30,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='releasecomponentrelationship',
             name='from_component',
-            field=models.ForeignKey(related_name='from_release_components', to='component.ReleaseComponent'),
+            field=models.ForeignKey(related_name='from_release_components', to='component.ReleaseComponent', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='releasecomponentrelationship',
             name='to_component',
-            field=models.ForeignKey(related_name='to_release_components', to='component.ReleaseComponent'),
+            field=models.ForeignKey(related_name='to_release_components', to='component.ReleaseComponent', on_delete=models.CASCADE),
         ),
     ]

@@ -21,11 +21,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='changeset',
             name='author',
-            field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='change',
             name='changeset',
-            field=models.ForeignKey(to='changeset.Changeset'),
+            field=models.ForeignKey(to='changeset.Changeset', on_delete=models.CASCADE),
         ),
     ]

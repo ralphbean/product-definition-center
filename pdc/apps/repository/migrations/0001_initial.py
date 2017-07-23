@@ -40,8 +40,8 @@ class Migration(migrations.Migration):
                 ('shadow', models.BooleanField(default=False)),
                 ('name', models.CharField(max_length=2000, db_index=True)),
                 ('product_id', models.PositiveIntegerField(null=True, blank=True)),
-                ('content_category', models.ForeignKey(to='repository.ContentCategory')),
-                ('content_format', models.ForeignKey(to='repository.ContentFormat')),
+                ('content_category', models.ForeignKey(to='repository.ContentCategory', on_delete=models.CASCADE)),
+                ('content_format', models.ForeignKey(to='repository.ContentFormat', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['name'],
@@ -66,12 +66,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='repo',
             name='repo_family',
-            field=models.ForeignKey(to='repository.RepoFamily'),
+            field=models.ForeignKey(to='repository.RepoFamily', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='repo',
             name='service',
-            field=models.ForeignKey(to='repository.Service'),
+            field=models.ForeignKey(to='repository.Service', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='repo',

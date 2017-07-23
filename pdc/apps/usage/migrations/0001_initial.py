@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('resource', models.CharField(max_length=300)),
                 ('method', models.CharField(max_length=10)),
                 ('time', models.DateTimeField()),
-                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

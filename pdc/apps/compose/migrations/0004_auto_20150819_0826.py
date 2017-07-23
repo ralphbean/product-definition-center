@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='composeimage',
             name='path',
-            field=models.ForeignKey(to='compose.Path', null=True),
+            field=models.ForeignKey(to='compose.Path', null=True, on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='path',

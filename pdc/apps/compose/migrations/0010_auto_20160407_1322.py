@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('path', models.CharField(max_length=2000)),
-                ('arch', models.ForeignKey(to='common.Arch')),
-                ('compose', models.ForeignKey(to='compose.Compose')),
+                ('arch', models.ForeignKey(to='common.Arch', on_delete=models.CASCADE)),
+                ('compose', models.ForeignKey(to='compose.Compose', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -31,11 +31,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='composerelpath',
             name='type',
-            field=models.ForeignKey(to='compose.PathType'),
+            field=models.ForeignKey(to='compose.PathType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='composerelpath',
             name='variant',
-            field=models.ForeignKey(to='compose.Variant'),
+            field=models.ForeignKey(to='compose.Variant', on_delete=models.CASCADE),
         ),
     ]

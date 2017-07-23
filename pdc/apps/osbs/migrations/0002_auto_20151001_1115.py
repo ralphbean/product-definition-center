@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='osbsrecord',
             name='component',
-            field=models.OneToOneField(related_name='osbs', to='component.ReleaseComponent'),
+            field=models.OneToOneField(related_name='osbs', to='component.ReleaseComponent', on_delete=models.CASCADE),
         ),
     ]

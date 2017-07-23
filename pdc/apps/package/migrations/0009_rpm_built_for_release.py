@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rpm',
             name='built_for_release',
-            field=models.ForeignKey(blank=True, to='release.Release', null=True),
+            field=models.ForeignKey(blank=True, to='release.Release', null=True, on_delete=models.CASCADE),
         ),
     ]

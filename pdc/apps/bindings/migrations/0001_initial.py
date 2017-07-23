@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('dist_git_branch', models.CharField(max_length=200)),
-                ('release', models.OneToOneField(related_name='releasedistgitmapping', to='release.Release')),
+                ('release', models.OneToOneField(related_name='releasedistgitmapping', to='release.Release', on_delete=models.CASCADE)),
             ],
         ),
     ]
