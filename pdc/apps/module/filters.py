@@ -11,15 +11,15 @@ from .models import UnreleasedVariant
 
 
 class UnreleasedVariantFilter(django_filters.FilterSet):
-    variant_id          = django_filters.CharFilter(name='variant_id', lookup_type='iexact')
-    variant_uid         = django_filters.CharFilter(name='variant_uid', lookup_type='iexact')
-    variant_name        = django_filters.CharFilter(name='variant_name', lookup_type='iexact')
-    variant_type        = django_filters.CharFilter(name='variant_type', lookup_type='iexact')
-    variant_version     = django_filters.CharFilter(name='variant_version', lookup_type='iexact')
-    variant_release     = django_filters.CharFilter(name='variant_release', lookup_type='iexact')
-    variant_context     = django_filters.CharFilter(name='variant_context', lookup_type='iexact')
+    variant_id          = django_filters.CharFilter(name='variant_id', lookup_expr='iexact')
+    variant_uid         = django_filters.CharFilter(name='variant_uid', lookup_expr='iexact')
+    variant_name        = django_filters.CharFilter(name='variant_name', lookup_expr='iexact')
+    variant_type        = django_filters.CharFilter(name='variant_type', lookup_expr='iexact')
+    variant_version     = django_filters.CharFilter(name='variant_version', lookup_expr='iexact')
+    variant_release     = django_filters.CharFilter(name='variant_release', lookup_expr='iexact')
+    variant_context     = django_filters.CharFilter(name='variant_context', lookup_expr='iexact')
     active              = CaseInsensitiveBooleanFilter()
-    koji_tag            = django_filters.CharFilter(name='koji_tag', lookup_type='iexact')
+    koji_tag            = django_filters.CharFilter(name='koji_tag', lookup_expr='iexact')
     runtime_dep_name    = MultiValueFilter(name='runtime_deps__dependency', distinct=True)
     runtime_dep_stream  = MultiValueFilter(name='runtime_deps__stream', distinct=True)
     build_dep_name      = MultiValueFilter(name='build_deps__dependency', distinct=True)
