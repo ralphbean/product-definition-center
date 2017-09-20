@@ -5,7 +5,6 @@
 # http://opensource.org/licenses/MIT
 #
 from django.db.models import Q
-from django.forms import SelectMultiple
 
 from django_filters import CharFilter
 
@@ -44,7 +43,7 @@ class ReleaseComponentFilter(ComposeFilterSet):
     brew_package = MultiValueFilter()
     active = CaseInsensitiveBooleanFilter()
     type = CharFilter(name='type__name')
-    dist_git_branch = CharFilter(method='filter_by_dist_git_branch', widget=SelectMultiple)
+    dist_git_branch = MultiValueFilter(method='filter_by_dist_git_branch')
 
     @value_is_not_empty
     def filter_by_dist_git_branch(self, qs, name, value):

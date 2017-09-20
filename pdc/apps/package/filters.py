@@ -6,7 +6,6 @@
 from functools import partial
 
 from django.conf import settings
-from django.forms import SelectMultiple
 from django.core.exceptions import FieldError
 
 import django_filters
@@ -148,8 +147,7 @@ class ImageFilter(django_filters.FilterSet):
 
 class BuildImageFilter(django_filters.FilterSet):
     if settings.WITH_BINDINGS:
-        component_name      = django_filters.CharFilter(method='filter_by_component_name',
-                                                        widget=SelectMultiple)
+        component_name      = MultiValueFilter(method='filter_by_component_name')
     else:
         component_name      = MultiValueFilter(name='rpms__srpm_name', distinct=True)
     rpm_version                 = MultiValueFilter(name='rpms__version', distinct=True)

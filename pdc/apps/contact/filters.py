@@ -6,7 +6,6 @@
 import django_filters
 
 from django.db.models import Q
-from django.forms import SelectMultiple
 from django_filters import FilterSet, CharFilter
 from pdc.apps.common.filters import MultiValueFilter, MultiValueRegexFilter, value_is_not_empty
 
@@ -56,8 +55,8 @@ def _filter_contacts(people_filter, maillist_filter, qs, values):
 
 
 class _BaseComponentContactFilter(FilterSet):
-    contact = CharFilter(method='filter_by_contact', widget=SelectMultiple)
-    email = CharFilter(method='filter_by_email', widget=SelectMultiple)
+    contact = MultiValueFilter(method='filter_by_contact')
+    email = MultiValueFilter(method='filter_by_email')
     role = MultiValueFilter(name='role__name')
     component = MultiValueRegexFilter(name='component__name')
 

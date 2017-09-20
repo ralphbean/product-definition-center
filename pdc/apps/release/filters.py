@@ -17,7 +17,7 @@ class ActiveReleasesFilter(filters.CaseInsensitiveBooleanFilter):
     The `name` argument to __init__ should specify how to get to relases from
     the object.
     """
-    def filter(self, qs, value):
+    def _filter(self, qs, name, value):
         if not value:
             return qs
         self._validate_boolean(value)
@@ -34,7 +34,7 @@ class AllowedPushTargetsFilter(filters.MultiValueFilter):
         self.parent_names = parent_names
 
     @filters.value_is_not_empty
-    def filter(self, qs, value):
+    def _filter(self, qs, name, value):
         qs = qs.exclude(**{'masked_push_targets__name__in': value})
         prefix = ''
         for parent_name in self.parent_names:
