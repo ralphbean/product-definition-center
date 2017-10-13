@@ -143,7 +143,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'kobo.django.menu.middleware.MenuMiddleware',
+    #'kobo.django.menu.middleware.MenuMiddleware',
     'pdc.apps.usage.middleware.UsageMiddleware',
     'pdc.apps.changeset.middleware.ChangesetMiddleware',
     'pdc.apps.utils.middleware.MessagingMiddleware',
@@ -167,15 +167,15 @@ LOGIN_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'pdc.urls'
 
-import kobo
-ROOT_MENUCONF = "pdc.menu"
+#import kobo
+#ROOT_MENUCONF = "pdc.menu"
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, "pdc/templates"),
-            os.path.join(os.path.dirname(kobo.__file__), "hub", "templates"),
+            #os.path.join(os.path.dirname(kobo.__file__), "hub", "templates"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -184,7 +184,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'kobo.django.menu.context_processors.menu_context_processor',
+                #'kobo.django.menu.context_processors.menu_context_processor',
             ],
         },
     },
