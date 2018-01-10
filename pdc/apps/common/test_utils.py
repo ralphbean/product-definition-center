@@ -59,6 +59,11 @@ class TestCaseWithChangeSetMixin(object):
             raise AssertionError('Expected %d changesets, found %d' % (len(num_changes), len(changesets)))
         for i, (changeset, num) in enumerate(zip(changesets, num_changes)):
             if num != changeset.change_set.count():
+                # Print out some useful debugging in the event of test failure.
+                print(changeset)
+                for change in changeset.change_set.all():
+                    print("%r(%r)" % (change.target_class, change.target_id))
+                    print("  %r -> %r" % (change.old_value, change.new_value))
                 raise AssertionError('Wrong number of changes in change set %d, expected %d, got %d'
                                      % (i, num, changeset.change_set.count()))
         return True
